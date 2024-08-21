@@ -128,9 +128,12 @@ shared_examples_for 'a schema based apartment adapter' do
       end
     end
 
-    # rubocop:disable RSpec/MultipleExpectations
     it 'connects and resets' do
       subject.switch(schema1) do
+        # Ensure sequence is not cached
+        Company.reset_sequence_name
+        User.reset_sequence_name
+
         expect(connection.schema_search_path).to start_with %("#{schema1}")
         expect(User.sequence_name).to eq "#{User.table_name}_id_seq"
         expect(Company.sequence_name).to eq "#{public_schema}.#{Company.table_name}_id_seq"
@@ -140,12 +143,29 @@ shared_examples_for 'a schema based apartment adapter' do
       expect(User.sequence_name).to eq "#{User.table_name}_id_seq"
       expect(Company.sequence_name).to eq "#{public_schema}.#{Company.table_name}_id_seq"
     end
-    # rubocop:enable RSpec/MultipleExpectations
 
-    it 'allows a list of schemas' do
-      subject.switch([schema1, schema2]) do
-        expect(connection.schema_search_path).to include %("#{schema1}")
-        expect(connection.schema_search_path).to include %("#{schema2}")
+    describe 'multiple schemas' do
+      it 'allows a list of schemas' do
+        subject.switch([schema1, schema2]) do
+          expect(connection.schema_search_path).to include %("#{schema1}")
+          expect(connection.schema_search_path).to include %("#{schema2}")
+        end
+      end
+
+      it 'connects and resets' do
+        subject.switch([schema1, schema2]) do
+          # Ensure sequence is not cached
+          Company.reset_sequence_name
+          User.reset_sequence_name
+
+          expect(connection.schema_search_path).to start_with %("#{schema1}")
+          expect(User.sequence_name).to eq "#{User.table_name}_id_seq"
+          expect(Company.sequence_name).to eq "#{public_schema}.#{Company.table_name}_id_seq"
+        end
+
+        expect(connection.schema_search_path).to start_with %("#{public_schema}")
+        expect(User.sequence_name).to eq "#{User.table_name}_id_seq"
+        expect(Company.sequence_name).to eq "#{public_schema}.#{Company.table_name}_id_seq"
       end
     end
   end
@@ -213,7 +233,7 @@ shared_examples_for 'a schema based apartment adapter' do
       it 'should not raise any errors' do
         expect do
           subject.switch! 'unknown_schema'
-        end.not_to raise_error(Apartment::TenantNotFound)
+        end.not_to raise_error
       end
     end
 
