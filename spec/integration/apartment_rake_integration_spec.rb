@@ -52,7 +52,7 @@ describe 'apartment rake tasks', database: :postgresql do
 
       describe '#migrate' do
         it 'should migrate all databases' do
-          if ActiveRecord.version >= Gem::Version.new('7.2.0')
+          if ActiveRecord.version >= Gem::Version.new('7.2.2')
             allow(ActiveRecord::Base.connection_pool)
           else
             allow(ActiveRecord::Base.connection)
@@ -65,7 +65,7 @@ describe 'apartment rake tasks', database: :postgresql do
 
       describe '#rollback' do
         it 'should rollback all dbs' do
-          if ActiveRecord.version >= Gem::Version.new('7.2.0')
+          if ActiveRecord.version >= Gem::Version.new('7.2.2')
             allow(ActiveRecord::Base.connection_pool)
           else
             allow(ActiveRecord::Base.connection)

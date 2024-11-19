@@ -13,7 +13,7 @@ module Apartment
 
         migration_scope_block = ->(migration) { ENV['SCOPE'].blank? || (ENV['SCOPE'] == migration.scope) }
 
-        if ActiveRecord.version >= Gem::Version.new('7.2.0')
+        if ActiveRecord.version >= Gem::Version.new('7.2.2')
           ActiveRecord::Base.connection_pool.migration_context.migrate(version, &migration_scope_block)
         else
           ActiveRecord::Base.connection.migration_context.migrate(version, &migration_scope_block)
@@ -24,7 +24,7 @@ module Apartment
     # Migrate up/down to a specific version
     def run(direction, database, version)
       Tenant.switch(database) do
-        if ActiveRecord.version >= Gem::Version.new('7.2.0')
+        if ActiveRecord.version >= Gem::Version.new('7.2.2')
           ActiveRecord::Base.connection_pool.migration_context.run(direction, version)
         else
           ActiveRecord::Base.connection.migration_context.run(direction, version)
@@ -35,7 +35,7 @@ module Apartment
     # rollback latest migration `step` number of times
     def rollback(database, step = 1)
       Tenant.switch(database) do
-        if ActiveRecord.version >= Gem::Version.new('7.2.0')
+        if ActiveRecord.version >= Gem::Version.new('7.2.2')
           ActiveRecord::Base.connection_pool.migration_context.rollback(step)
         else
           ActiveRecord::Base.connection.migration_context.rollback(step)
